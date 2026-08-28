@@ -1,20 +1,10 @@
-# Hardened changes (Phase 0 + Phase 1)
+# Phase1 continued: rules 21-40 converted and mod-log notifier
 
-This branch (generated/harden-1) applies the first hardening phase to the generated rules set.
+This commit adds concrete heuristics for rules 21 through 40, a mod-log notifier (webhook-based), and a simple test harness script (scripts/test_rules.js) to exercise a few checks locally.
 
-What changed:
-- Added SQLite-backed persistence for rule enabled state and audit logs (src/data/rules.db)
-- Added audit logging helper (src/utils/auditLogger.js)
-- Added a simple SQLite-backed rate limiter for counters (src/utils/rateLimiter.js)
-- Added admin commands: /rules (list), /rule (enable|disable), /rules_rollback (emergency disable all)
-- rulesManager now runs in SAFE_MODE which converts destructive 'ban' actions to 'mute' and records audit logs.
+How to run the harness:
+- From repository root: `node scripts/test_rules.js`
+- Ensure sqlite3 is installed (`npm install sqlite3`). The harness uses the same rulesManager and will create src/data/rules.db if needed.
 
-Integration notes:
-- Install sqlite3 dependency: `npm install sqlite3`
-- Register the new commands with your command handler (src/commands/*.js)
-- Integrate rulesManager.applyAll(context) inside your messageCreate and guildMemberAdd handlers. See README_RULES.md for earlier integration example.
-- Test on staging. Use /rules to inspect enabled rules.
-
-Next steps (Phase 1 additional items can be expanded):
-- Convert more placeholders to concrete heuristics (I implemented infrastructure; next I can convert rules 21-40)
-- Swap SQLite counters for Redis if you provide Redis credentials.
+Mod-log webhook:
+- To enable posting of audit summaries to a webhook, set environment variable `MOD_LOG_WEBHOOK_URL` to a Discord webhook URL. The audit logger will post a short message for each automated action.
