@@ -1,13 +1,20 @@
-# Generated protections
+# Hardened changes (Phase 0 + Phase 1)
 
-This branch adds 100 rule modules (src/rules/rule_001.js ... rule_100.js), a rules index, a simple rules manager and a /start command skeleton.
+This branch (generated/harden-1) applies the first hardening phase to the generated rules set.
 
-Usage (quick):
-- Install your bot dependencies (discord.js etc.)
-- Import and register src/commands/start.js with your command handler
-- Ensure the bot has permission to Manage Messages / Mute Members if you want deletion/mute actions
-- Test on a staging server. The generated rules are mostly lightweight and safe; some are placeholders for future improvements.
+What changed:
+- Added SQLite-backed persistence for rule enabled state and audit logs (src/data/rules.db)
+- Added audit logging helper (src/utils/auditLogger.js)
+- Added a simple SQLite-backed rate limiter for counters (src/utils/rateLimiter.js)
+- Added admin commands: /rules (list), /rule (enable|disable), /rules_rollback (emergency disable all)
+- rulesManager now runs in SAFE_MODE which converts destructive 'ban' actions to 'mute' and records audit logs.
 
-Notes:
-- No mass-posting or spammy commands were added. All protections avoid destructive auto-ban by default. You can modify specific rule actions.
-- For production, consider using a persistent DB (SQLite/Redis) and more robust audit logging.
+Integration notes:
+- Install sqlite3 dependency: `npm install sqlite3`
+- Register the new commands with your command handler (src/commands/*.js)
+- Integrate rulesManager.applyAll(context) inside your messageCreate and guildMemberAdd handlers. See README_RULES.md for earlier integration example.
+- Test on staging. Use /rules to inspect enabled rules.
+
+Next steps (Phase 1 additional items can be expanded):
+- Convert more placeholders to concrete heuristics (I implemented infrastructure; next I can convert rules 21-40)
+- Swap SQLite counters for Redis if you provide Redis credentials.
